@@ -1,8 +1,9 @@
+// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { CategoryModule } from './category/category.module';
 import { WishlistModule } from './wishlist/wishlist.module';
@@ -16,15 +17,22 @@ import databaseConfig from './config/database.config';
       isGlobal: true,
       load: [appConfig, databaseConfig],
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
-      autoLoadEntities: true,
-      synchronize: process.env.DB_SYNC === 'true',
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const dbConfig = configService.get('database');
+        return {
+          type: 'postgres',
+          host: dbConfig.host,
+          port: dbConfig.port,
+          username: dbConfig.username,
+          password: dbConfig.password,
+          database: dbConfig.database,
+          autoLoadEntities: true,
+          synchronize: dbConfig.synchronize,
+        };
+      },
     }),
     UserModule,
     CategoryModule,
