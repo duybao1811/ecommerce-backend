@@ -4,10 +4,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { UserModule } from './user/user.module';
-import { CategoryModule } from './category/category.module';
-import { WishlistModule } from './wishlist/wishlist.module';
-import { ProductModule } from './product/product.module';
+import { UserModule } from './modules/user/user.module';
+import { CategoryModule } from './modules/category/category.module';
+import { WishlistModule } from './modules/wishlist/wishlist.module';
+import { ProductModule } from './modules/product/product.module';
+import { AuthModule } from './modules/auth/auth.module';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 
@@ -38,6 +39,7 @@ import databaseConfig from './config/database.config';
     CategoryModule,
     WishlistModule,
     ProductModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

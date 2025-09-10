@@ -1,19 +1,19 @@
 import {
-  Injectable,
   ConflictException,
+  Injectable,
   UnauthorizedException,
-  NotFoundException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { UserRepository } from './user.repo';
-import { User } from './user.entity';
+import * as bcrypt from 'bcrypt';
+import { UserService } from '../user/user.service';
+import { plainToInstance } from 'class-transformer';
+import { UserResponseDto } from '../user/dto/user-response.dto';
 
 @Injectable()
-export class UserService {
+export class AuthService {
   constructor(
-    private readonly userRepo: UserRepository,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
   ) {}
 
   async register(
@@ -22,14 +22,14 @@ export class UserService {
     password: string,
     phoneNumber?: string,
     address?: string,
-  ): Promise<User> {
-    const existing = await this.userRepo.findByEmail(email);
+  ): Promise<UserResponseDto> {
+    const existing = await this.userService.findByEmail(email);
     if (existing) {
       throw new ConflictException('Email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await this.userRepo.createUser({
+    const newUser = await this.userService.createUser({
       fullName,
       email,
       password: hashedPassword,
@@ -37,14 +37,16 @@ export class UserService {
       address,
     });
 
-    return newUser;
+    return plainToInstance(UserResponseDto, newUser, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async login(
     email: string,
     password: string,
-  ): Promise<{ user: User; token: string }> {
-    const user = await this.userRepo.findByEmail(email);
+  ): Promise<{ user: UserResponseDto; token: string }> {
+    const user = await this.userService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -57,14 +59,10 @@ export class UserService {
     const payload = { sub: user.id, email: user.email };
     const token = this.jwtService.sign(payload);
 
-    return { user, token };
-  }
+    const userDto = plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
 
-  async getProfile(userId: string): Promise<User> {
-    const user = await this.userRepo.findByIdWithWishlist(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
+    return { user: userDto, token };
   }
 }
