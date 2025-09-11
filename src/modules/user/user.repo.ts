@@ -13,6 +13,10 @@ export class UserRepository {
     private readonly wishlistRepo: Repository<Wishlist>,
   ) {}
 
+  findById(id: string): Promise<User | null> {
+    return this.userRepo.findOne({ where: { id } });
+  }
+
   findByEmail(email: string): Promise<User | null> {
     return this.userRepo.findOne({ where: { email } });
   }
@@ -27,6 +31,10 @@ export class UserRepository {
   createUser(userData: Partial<User>): Promise<User> {
     const user = this.userRepo.create(userData);
     return this.userRepo.save(user);
+  }
+
+  async updateUser(userId: string, updateData: Partial<User>): Promise<void> {
+    await this.userRepo.update(userId, { ...updateData });
   }
 
   getWishlist(userId: string): Promise<Wishlist[]> {

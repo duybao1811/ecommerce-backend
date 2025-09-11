@@ -1,9 +1,8 @@
+import 'express';
+import { JwtPayload } from '../src/modules/auth/interfaces/jtw-payload.interface';
+
 declare module 'express' {
-  interface Request {
-    user?: {
-      sub: string;
-      username?: string;
-      [key: string]: any;
-    };
+  export interface Request {
+    user?: JwtPayload;
   }
 }

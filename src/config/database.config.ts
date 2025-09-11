@@ -6,5 +6,5 @@ export default registerAs('database', () => ({
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASS || 'postgres',
   database: process.env.DB_NAME || 'exclusive',
-  synchronize: process.env.DB_SYNC === 'true',
+  synchronize: process.env.DB_SYNC === 'true' || true,
 }));
