@@ -16,6 +16,9 @@ export class UserResponseDto {
   @Expose()
   address?: string;
 
+  @Expose()
+  avatar: string;
+
   @Exclude()
   password: string;
 

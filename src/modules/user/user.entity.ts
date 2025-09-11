@@ -15,7 +15,7 @@ export class User extends BaseEntity {
 
   @Column({
     nullable: true,
-    default: '',
+    default: '/default-avatar.png',
   })
   avatar: string;
 

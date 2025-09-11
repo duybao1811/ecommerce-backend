@@ -9,15 +9,15 @@ import {
   Param,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from '../../common/pipes/image-validation.pipe';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Req() req: Request) {
     const userId = req.user!.sub;
@@ -25,6 +25,7 @@ export class UserController {
     return { user };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':id/avatar')
   @UseInterceptors(FileInterceptor('file'))
   async uploadAvatar(

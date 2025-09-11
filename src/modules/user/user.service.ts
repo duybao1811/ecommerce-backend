@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repo';
 import { User } from './user.entity';
+import { plainToInstance } from 'class-transformer';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class UserService {
@@ -34,21 +36,28 @@ export class UserService {
     });
   }
 
-  async getProfile(userId: string): Promise<User> {
+  async getProfile(userId: string): Promise<UserResponseDto> {
     const user = await this.userRepo.findByIdWithWishlist(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user;
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  async updateAvatar(userId: string, avatarUrl: string): Promise<User> {
+  async updateAvatar(
+    userId: string,
+    avatarUrl: string,
+  ): Promise<UserResponseDto> {
     const user = await this.userRepo.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
     user.avatar = avatarUrl;
     await this.userRepo.updateUser(userId, user);
-    return user;
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 }
