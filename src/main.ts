@@ -23,7 +23,7 @@ async function bootstrap() {
 
   const port = configService.get<number>('app.port');
   console.log('port', port);
-  await app.listen(port || '3000');
+  await app.listen(port || '3000', '0.0.0.0');
   console.log(`🚀 Server running on http://localhost:${port}`);
 }
 bootstrap();
