@@ -3,6 +3,8 @@ import { UserRepository } from './user.repo';
 import { User } from './user.entity';
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from './dto/user-response.dto';
+import { RegisterDto } from '../auth/dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -20,13 +22,7 @@ export class UserService {
     password,
     phoneNumber,
     address,
-  }: {
-    fullName: string;
-    email: string;
-    password: string;
-    phoneNumber?: string;
-    address?: string;
-  }): Promise<User> {
+  }: RegisterDto): Promise<User> {
     return this.userRepo.createUser({
       fullName,
       email,
@@ -55,6 +51,21 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
     user.avatar = avatarUrl;
+    await this.userRepo.updateUser(userId, user);
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async updateUserProfile(
+    userId: string,
+    updateData: UpdateProfileDto,
+  ): Promise<UserResponseDto> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    Object.assign(user, updateData);
     await this.userRepo.updateUser(userId, user);
     return plainToInstance(UserResponseDto, user, {
       excludeExtraneousValues: true,

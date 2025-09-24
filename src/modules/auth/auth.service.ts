@@ -10,6 +10,11 @@ import { UserService } from '../user/user.service';
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from '../user/dto/user-response.dto';
 import { ConfigService } from '@nestjs/config';
+import {
+  ACCESS_TOKEN_EXPIRE_TIME,
+  REFRESH_TOKEN_EXPIRE_TIME,
+} from '../../constants';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,13 +24,8 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(
-    fullName: string,
-    email: string,
-    password: string,
-    phoneNumber?: string,
-    address?: string,
-  ): Promise<UserResponseDto> {
+  async register(dto: RegisterDto): Promise<UserResponseDto> {
+    const { email, fullName, password, phoneNumber, address } = dto;
     const existing = await this.userService.findByEmail(email);
     if (existing) {
       throw new ConflictException('Email already exists');
@@ -67,12 +67,12 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('auth.JWT_ACCESS_SECRET'),
-      expiresIn: '15m', // Access token 15 phút
+      expiresIn: ACCESS_TOKEN_EXPIRE_TIME,
     });
 
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('auth.JWT_REFRESH_SECRET'),
-      expiresIn: '7d', // Refresh token 7 ngày
+      expiresIn: REFRESH_TOKEN_EXPIRE_TIME,
     });
 
     const userDto = plainToInstance(UserResponseDto, user, {
@@ -99,7 +99,7 @@ export class AuthService {
         { sub: user.id, email: user.email },
         {
           secret: this.configService.get<string>('auth.JWT_ACCESS_SECRET'),
-          expiresIn: '15m',
+          expiresIn: ACCESS_TOKEN_EXPIRE_TIME,
         },
       );
 

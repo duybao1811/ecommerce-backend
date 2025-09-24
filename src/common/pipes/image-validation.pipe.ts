@@ -5,14 +5,19 @@ import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 export class ImageValidationPipe implements PipeTransform {
   transform(file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('File is required');
+      return null;
     }
 
     if (!file.mimetype.startsWith('image/')) {
       throw new BadRequestException('Only image files are allowed');
     }
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/svg+xml',
+    ];
     if (!allowedTypes.includes(file.mimetype)) {
       throw new BadRequestException(
         `Unsupported file type ${file.mimetype}. Allowed: ${allowedTypes.join(', ')}`,

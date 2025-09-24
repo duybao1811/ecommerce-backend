@@ -3,6 +3,8 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { Wishlist } from 'src/modules/wishlist/wishlist.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RegisterDto } from '../auth/dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UserRepository {
@@ -28,12 +30,15 @@ export class UserRepository {
     });
   }
 
-  createUser(userData: Partial<User>): Promise<User> {
+  createUser(userData: RegisterDto): Promise<User> {
     const user = this.userRepo.create(userData);
     return this.userRepo.save(user);
   }
 
-  async updateUser(userId: string, updateData: Partial<User>): Promise<void> {
+  async updateUser(
+    userId: string,
+    updateData: UpdateProfileDto,
+  ): Promise<void> {
     await this.userRepo.update(userId, { ...updateData });
   }
 
