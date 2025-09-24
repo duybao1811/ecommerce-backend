@@ -3,18 +3,22 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
+    container_name: postgres-db
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: exclusive
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pgadmin
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
@@ -23,6 +27,20 @@ services:
       - "5050:80"
     depends_on:
       - postgres
+
+  nestjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs-app
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:3000"
+    depends_on:
+      - postgres
+    command: yarn start:prod
 
 volumes:
   pgdata:

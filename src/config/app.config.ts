@@ -4,7 +4,7 @@ export default () => ({
     env: process.env.NODE_ENV || 'development',
   },
   auth: {
-    JWT_REFRESH_SECRET: 'your_jwt_refresh_secret_key',
-    JWT_ACCESS_SECRET: 'your_jwt_access_secret_key',
+    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
+    JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
   },
 });
